@@ -1,0 +1,33 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "subscriptionId": {
+            "value": "3b449ca8-aa38-43f8-aeaa-3f367a14306c"
+        },
+        "resourceGroupName": {
+            "value": "app-service-learning"
+        },
+        "name": {
+            "value": "app-service-learning-api"
+        },
+        "location": {
+            "value": "Southeast Asia"
+        },
+        "hostingPlanName": {
+            "value": "app-service-learning-plan"
+        },
+        "serverFarmResourceGroup": {
+            "value": "app-service-learning"
+        },
+        "alwaysOn": {
+            "value": false
+        },
+        "ftpsState": {
+            "value": "FtpsOnly"
+        },
+        "linuxFxVersion": {
+            "value": "DOTNETCORE|6.0"
+        }
+    }
+}

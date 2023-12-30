@@ -1,0 +1,31 @@
+name: docker-learning-app
+services:
+  web-api:
+    build:
+      context: ./my-be-api
+    ports:
+      - "8080:80"
+    networks:
+      - apps
+
+  web-app:
+    build:
+      context: ./my-fe-app
+    environment:
+      - API=http://web-api
+      - NEXT_PUBLIC_API=http://localhost:8080
+    ports:
+      - "3000:80"
+    networks:
+      - apps
+
+  web-app-static:
+    build:
+      context: ./my-fe-app-static
+    ports:
+      - "3001:80"
+    networks:
+      - apps
+
+networks:
+  apps:
