@@ -5,8 +5,14 @@ services:
       context: ./my-be-api
     ports:
       - "8080:80"
+    environment:
+      - HostInfoFile=/app/host-info/host.txt
+      - DataDir=/app/data
     networks:
       - apps
+    volumes:
+      - ./docker/volumes/host-info:/app/host-info:ro
+      - data:/app/data
 
   web-app:
     build:
@@ -29,3 +35,11 @@ services:
 
 networks:
   apps:
+
+volumes:
+  data:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: ./docker/volumes/data

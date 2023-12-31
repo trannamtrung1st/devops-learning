@@ -1,3 +1,5 @@
+using Microsoft.AspNetCore.Mvc;
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
@@ -14,9 +16,11 @@ var app = builder.Build();
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
-    app.UseSwagger();
-    app.UseSwaggerUI();
+    // [NOTE] development settings
 }
+
+app.UseSwagger();
+app.UseSwaggerUI();
 
 app.UseHttpsRedirection();
 
@@ -41,6 +45,30 @@ app.MapGet("/weatherforecast", () =>
 })
 .WithName("GetWeatherForecast")
 .WithOpenApi();
+
+app.MapGet("/host-info", (IConfiguration configuration) =>
+{
+    var currentDir = Directory.GetCurrentDirectory();
+    var path = Path.GetFullPath(configuration["HostInfoFile"] ?? throw new Exception("Not found"));
+    return Results.File(
+        path: path,
+        contentType: "text/plain",
+        fileDownloadName: "host.txt");
+})
+.WithName("GetHostInfo")
+.WithOpenApi();
+
+app.MapPost("/upload-file", async (IFormFile file, IConfiguration configuration) =>
+{
+    var path = Path.Combine(
+        configuration["DataDir"] ?? throw new Exception("Not found"),
+        Path.GetFileName(file.FileName));
+    using var fileStream = File.OpenWrite(path);
+    await file.CopyToAsync(fileStream);
+    return Results.Ok();
+})
+.WithName("UploadFile")
+.DisableAntiforgery();
 
 app.Run();
 
