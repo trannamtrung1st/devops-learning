@@ -33,6 +33,18 @@ services:
     networks:
       - apps
 
+  docker-dev-env:
+    image: node:21-alpine3.18
+    ports:
+      - "3002:3000"
+    networks:
+      - apps
+    tty: true
+    stdin_open: true
+    volumes:
+      - ./my-fe-app-static:/workspace/my-fe-app-static
+      - /workspace/my-fe-app-static/node_modules
+
 networks:
   apps:
 
