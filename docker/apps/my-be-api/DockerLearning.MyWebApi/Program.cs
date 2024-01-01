@@ -1,4 +1,8 @@
+using DockerLearning.MyWebApi.Entities;
+using DockerLearning.MyWebApi.Models;
+using DockerLearning.MyWebApi.Persistence;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -10,6 +14,8 @@ builder.Services.AddCors(opt => opt.AddDefaultPolicy(builder =>
 {
     builder.AllowAnyOrigin().AllowAnyHeader().AllowAnyMethod();
 }));
+builder.Services.AddDbContext<AppDbContext>(opt =>
+    opt.UseNpgsql(builder.Configuration.GetConnectionString(nameof(AppDbContext))));
 
 var app = builder.Build();
 
@@ -70,7 +76,43 @@ app.MapPost("/upload-file", async (IFormFile file, IConfiguration configuration)
 .WithName("UploadFile")
 .DisableAntiforgery();
 
+app.MapGet("/resources", async ([FromServices] AppDbContext dbContext) =>
+{
+    var models = await dbContext.Resources.Select(e => new ResourceModel
+    {
+        Id = e.Id,
+        Name = e.Name
+    }).ToArrayAsync();
+
+    return Results.Ok(models);
+})
+.WithName("GetAllResources")
+.WithOpenApi();
+
+app.MapPost("/resources", async ([FromBody] ResourceModel model, [FromServices] AppDbContext dbContext) =>
+{
+    var entity = new ResourceEntity
+    {
+        Name = model.Name
+    };
+    await dbContext.AddAsync(entity);
+    await dbContext.SaveChangesAsync();
+
+    return Results.Ok();
+})
+.WithName("CreateResource")
+.WithOpenApi();
+
+await MigrateDatabase(app);
+
 app.Run();
+
+static async Task MigrateDatabase(WebApplication app)
+{
+    using var scope = app.Services.CreateScope();
+    var dbContext = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+    await dbContext.Database.MigrateAsync();
+}
 
 record WeatherForecast(DateOnly Date, int TemperatureC, string? Summary)
 {

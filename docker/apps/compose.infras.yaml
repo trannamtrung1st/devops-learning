@@ -1,0 +1,22 @@
+name: docker-learning-app
+services:
+  db:
+    image: postgres
+    env_file: ./docker/db.env
+    ports:
+      - "5432:5432"
+    volumes:
+      - db:/var/lib/postgresql/data
+    networks:
+      - apps
+
+volumes:
+  db:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: ./docker/volumes/db
+
+networks:
+  apps:

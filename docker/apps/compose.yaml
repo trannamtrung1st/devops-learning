@@ -1,4 +1,8 @@
 name: docker-learning-app
+
+include:
+  - path: ./compose.infras.yaml
+
 services:
   web-api:
     build:
@@ -8,6 +12,7 @@ services:
     environment:
       - HostInfoFile=/app/host-info/host.txt
       - DataDir=/app/data
+      - ConnectionStrings__AppDbContext=Server=db;Port=5432;Database=docker_learning_db;User Id=postgres;Password=zaQ@123456!;
     networks:
       - apps
     volumes:
