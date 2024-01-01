@@ -1,16 +1,13 @@
-FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build-env
-WORKDIR /app
+FROM --platform=$BUILDPLATFORM mcr.microsoft.com/dotnet/sdk:8.0-alpine AS build
+ARG TARGETARCH
+COPY . /source
+WORKDIR /source/DockerLearning.MyWebApi
+RUN --mount=type=cache,id=nuget,target=/root/.nuget/packages \
+    dotnet publish -a ${TARGETARCH/amd64/x64} --use-current-runtime --self-contained false -o /app
 
-# Copy everything
-COPY . ./
-# Restore as distinct layers
-RUN dotnet restore
-# Build and publish a release
-RUN dotnet publish -c Release -o out
-
-# Build runtime image
-FROM mcr.microsoft.com/dotnet/aspnet:8.0
-WORKDIR /app
-COPY --from=build-env /app/out .
+FROM mcr.microsoft.com/dotnet/aspnet:8.0-alpine AS final
 ENV ASPNETCORE_URLS=http://+:80
+WORKDIR /app
+COPY --from=build /app .
+USER $APP_UID
 ENTRYPOINT ["dotnet", "DockerLearning.MyWebApi.dll"]
