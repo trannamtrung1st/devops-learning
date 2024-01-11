@@ -1,0 +1,30 @@
+﻿@implements IDisposable
+@page "/"
+@inject IConfiguration Configuration;
+
+<PageTitle>Home</PageTitle>
+
+<h1>Hello, world!</h1>
+
+Welcome to your new app.
+
+<p class="text-success">@_publicApiResponse</p>
+
+@code {
+    private readonly HttpClient _http;
+    private string _publicApiResponse;
+    public Home()
+    {
+        _http = new HttpClient();
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        _publicApiResponse = await _http.GetStringAsync(Configuration["PublicApiEndpoint"]);
+    }
+
+    public void Dispose()
+    {
+        _http?.Dispose();
+    }
+}

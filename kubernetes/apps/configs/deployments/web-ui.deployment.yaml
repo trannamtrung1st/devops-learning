@@ -1,0 +1,30 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: k8s-web-ui-client
+spec:
+  selector:
+    matchLabels:
+      app: web-ui-client
+      release: stable
+  template:
+    metadata:
+      name: web-ui-client
+      labels:
+        app: web-ui-client
+        release: stable
+        created_by: trung.tran
+    spec:
+      containers:
+        - name: web-ui-client
+          image: k8s-learning.docker.io/web-ui-client
+          imagePullPolicy: IfNotPresent
+          resources:
+            limits:
+              memory: "128M"
+              cpu: "500m"
+          env:
+            - name: WebApiUrl
+              value: http://localhost:30808
+            - name: PublicApiEndpoint
+              value: https://cat-fact.herokuapp.com/facts

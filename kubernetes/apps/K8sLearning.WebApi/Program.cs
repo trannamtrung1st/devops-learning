@@ -18,6 +18,10 @@ builder.Services.AddHealthChecks()
         bool hasError = builder.Configuration.GetValue<bool>("HasError");
         return hasError ? HealthCheckResult.Unhealthy() : HealthCheckResult.Healthy();
     }, tags: new[] { "Live" });
+builder.Services.AddCors(opt =>
+{
+    opt.AddDefaultPolicy(b => b.AllowAnyOrigin().AllowAnyHeader().AllowAnyMethod());
+});
 
 var app = builder.Build();
 
@@ -29,6 +33,8 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
+
+app.UseCors();
 
 app.MapHealthChecks("/healthz/ready", new HealthCheckOptions
 {
@@ -54,6 +60,8 @@ app.MapGet("/", (IConfiguration configuration) =>
 
 app.MapGet("/weatherforecast", () =>
 {
+    string hostName = System.Net.Dns.GetHostName();
+    var addr = System.Net.Dns.GetHostAddresses(hostName);
     var forecast = Enumerable.Range(1, 5).Select(index =>
         new WeatherForecast
         (
@@ -62,7 +70,13 @@ app.MapGet("/weatherforecast", () =>
             summaries[Random.Shared.Next(summaries.Length)]
         ))
         .ToArray();
-    return forecast;
+
+    return new
+    {
+        addr = addr.Select(a => a.ToString()),
+        host = hostName,
+        data = forecast
+    };
 })
 .WithName("GetWeatherForecast")
 .WithOpenApi();

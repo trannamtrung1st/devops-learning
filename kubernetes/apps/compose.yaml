@@ -6,8 +6,6 @@ services:
       dockerfile: ./K8sLearning.WebApi/Dockerfile
       args:
         - VERSION=1.0.0
-    ports:
-      - 8080:8080
 
   web-api-1:
     image: k8s-learning.docker.io/web-api:1.0.1
@@ -16,8 +14,6 @@ services:
       dockerfile: ./K8sLearning.WebApi/Dockerfile
       args:
         - VERSION=1.0.1
-    ports:
-      - 8080:8080
 
   web-api-2:
     image: k8s-learning.docker.io/web-api:1.0.2
@@ -27,5 +23,15 @@ services:
       args:
         - VERSION=1.0.2
         - HAS_ERROR=true
-    ports:
-      - 8080:8080
+
+  web-ui-client:
+    image: k8s-learning.docker.io/web-ui-client
+    build:
+      context: .
+      dockerfile: ./K8sLearning.WebUiClient/Dockerfile
+
+  worker:
+    image: k8s-learning.docker.io/worker
+    build:
+      context: .
+      dockerfile: ./K8sLearning.Worker/Dockerfile
